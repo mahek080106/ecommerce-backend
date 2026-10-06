@@ -1,7 +1,9 @@
 package ecommerce.task.controller;
 
+import ecommerce.task.dto.UpdateCartItemRequest;
 import ecommerce.task.model.Cart;
 import ecommerce.task.service.CartService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -20,10 +22,10 @@ public class CartController {
     public ResponseEntity<Cart> getCart(
             Authentication authentication) {
 
-        String userEmail = authentication.getName();
-
         return ResponseEntity.ok(
-                cartService.getCart(userEmail)
+                cartService.getCart(
+                        authentication.getName()
+                )
         );
     }
 
@@ -33,13 +35,39 @@ public class CartController {
             @RequestParam int quantity,
             Authentication authentication) {
 
-        String userEmail = authentication.getName();
-
         return ResponseEntity.ok(
                 cartService.addToCart(
-                        userEmail,
+                        authentication.getName(),
                         productId,
                         quantity
+                )
+        );
+    }
+
+    @PutMapping("/{productId}")
+    public ResponseEntity<Cart> updateQuantity(
+            @PathVariable String productId,
+            @Valid @RequestBody UpdateCartItemRequest request,
+            Authentication authentication) {
+
+        return ResponseEntity.ok(
+                cartService.updateQuantity(
+                        authentication.getName(),
+                        productId,
+                        request.getQuantity()
+                )
+        );
+    }
+
+    @DeleteMapping("/{productId}")
+    public ResponseEntity<Cart> removeFromCart(
+            @PathVariable String productId,
+            Authentication authentication) {
+
+        return ResponseEntity.ok(
+                cartService.removeFromCart(
+                        authentication.getName(),
+                        productId
                 )
         );
     }
@@ -48,9 +76,9 @@ public class CartController {
     public ResponseEntity<String> clearCart(
             Authentication authentication) {
 
-        String userEmail = authentication.getName();
-
-        cartService.clearCart(userEmail);
+        cartService.clearCart(
+                authentication.getName()
+        );
 
         return ResponseEntity.ok(
                 "Cart cleared successfully"
