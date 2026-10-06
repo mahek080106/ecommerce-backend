@@ -13,8 +13,9 @@ public class CartService {
     private final CartRepository cartRepository;
     private final ProductRepository productRepository;
 
-    public CartService(CartRepository cartRepository,
-                       ProductRepository productRepository) {
+    public CartService(
+            CartRepository cartRepository,
+            ProductRepository productRepository) {
 
         this.cartRepository = cartRepository;
         this.productRepository = productRepository;
@@ -30,14 +31,17 @@ public class CartService {
                         ));
     }
 
-    public Cart addToCart(String email,
-                          String productId,
-                          int quantity) {
+    public Cart addToCart(
+            String email,
+            String productId,
+            int quantity) {
 
         Product product = productRepository
                 .findById(productId)
                 .orElseThrow(() ->
-                        new RuntimeException("Product not found"));
+                        new RuntimeException(
+                                "Product not found"
+                        ));
 
         if (quantity <= 0) {
             throw new RuntimeException(
@@ -80,6 +84,69 @@ public class CartService {
                         quantity
                 )
         );
+
+        return cartRepository.save(cart);
+    }
+
+    public Cart updateQuantity(
+            String email,
+            String productId,
+            int quantity) {
+
+        if (quantity <= 0) {
+            throw new RuntimeException(
+                    "Quantity must be greater than zero"
+            );
+        }
+
+        Product product = productRepository
+                .findById(productId)
+                .orElseThrow(() ->
+                        new RuntimeException(
+                                "Product not found"
+                        ));
+
+        if (quantity > product.getStock()) {
+            throw new RuntimeException(
+                    "Not enough stock"
+            );
+        }
+
+        Cart cart = getCart(email);
+
+        for (CartItem item : cart.getItems()) {
+
+            if (item.getProductId().equals(productId)) {
+
+                item.setQuantity(quantity);
+
+                return cartRepository.save(cart);
+            }
+        }
+
+        throw new RuntimeException(
+                "Product is not present in cart"
+        );
+    }
+
+    public Cart removeFromCart(
+            String email,
+            String productId) {
+
+        Cart cart = getCart(email);
+
+        boolean removed =
+                cart.getItems().removeIf(
+                        item ->
+                                item.getProductId()
+                                        .equals(productId)
+                );
+
+        if (!removed) {
+            throw new RuntimeException(
+                    "Product is not present in cart"
+            );
+        }
 
         return cartRepository.save(cart);
     }
