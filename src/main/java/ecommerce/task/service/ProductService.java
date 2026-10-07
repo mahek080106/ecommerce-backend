@@ -41,11 +41,14 @@ public class ProductService {
         Product existing = getProductById(id);
 
         existing.setName(updatedProduct.getName());
-        existing.setDescription(updatedProduct.getDescription());
-        existing.setPrice(updatedProduct.getPrice());
         existing.setCategory(updatedProduct.getCategory());
+        existing.setPrice(updatedProduct.getPrice());
+        existing.setOldPrice(updatedProduct.getOldPrice());
+        existing.setRating(updatedProduct.getRating());
+        existing.setReviews(updatedProduct.getReviews());
+        existing.setImage(updatedProduct.getImage());
+        existing.setDescription(updatedProduct.getDescription());
         existing.setStock(updatedProduct.getStock());
-        existing.setImageUrl(updatedProduct.getImageUrl());
 
         return productRepository.save(existing);
     }
