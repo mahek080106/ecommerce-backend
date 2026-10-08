@@ -38,6 +38,18 @@ public class ReviewController {
                 request
         );
     }
+    @PostMapping("/reviews/{productId}")
+public Review addReviewAlternative(
+        @PathVariable String productId,
+        @Valid @RequestBody ReviewRequest request,
+        Authentication authentication) {
+
+    return reviewService.addReview(
+            productId,
+            authentication.getName(),
+            request
+    );
+}
 
     @PutMapping("/reviews/{reviewId}")
     public Review updateReview(
